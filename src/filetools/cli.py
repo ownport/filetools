@@ -1,6 +1,7 @@
 
 import os
 import sys
+import json
 import logging
 import argparse
 
@@ -45,6 +46,8 @@ class CLI():
         parser = argparse.ArgumentParser(description='scan files into the directory for metadata')
         parser.add_argument('-d', '--directory', dest='path', required=True,
                             help="the path to the directory for file scanning")
+        parser.add_argument('-i', '--ignore-tags', action='append',
+                            help='the tags for ignoring')
         args = parser.parse_args(sys.argv[2:])
 
         if not os.path.exists(args.path) or not os.path.isdir(args.path):
@@ -54,7 +57,7 @@ class CLI():
 
         for filepath in utils.scan_directory(args.path):
             logger.info('Processing the file, {}'.format(filepath))
-            print(utils.get_meta(filepath))
+            print(json.dumps(utils.get_meta(filepath, ignore_tags=args.ignore_tags)))
 
     @staticmethod
     def info():

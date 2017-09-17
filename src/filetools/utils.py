@@ -74,7 +74,7 @@ def scan_directory(path):
     logger.info('The scaning was completed successfully')
 
 
-def get_meta(filepath):
+def get_meta(filepath, ignore_tags=[]):
     ''' return meta by filepath
     '''
     return {
@@ -83,7 +83,7 @@ def get_meta(filepath):
         'file.name': filepath.split(os.sep)[-1],
         'file.ext': os.path.splitext(filepath)[1],
         'file.size': os.stat(filepath).st_size,
-        'file.tags': get_tags_from_path(filepath),
+        'file.tags': get_tags_from_path(filepath, ignore_tags=ignore_tags),
     }
 
 
