@@ -5,8 +5,8 @@ import logging
 import argparse
 
 
-from filemeta import FILEMETA_VERSION
-from filemeta import utils
+from filetools import FILEMETA_VERSION
+from filetools import utils
 
 
 FILEMETA_USAGE = '''filemeta <command> [<args>]

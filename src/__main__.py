@@ -1,9 +1,9 @@
 
 import sys
 
-from filemeta.utils import clean_syspath
+from filetools.utils import clean_syspath
 sys.path = clean_syspath()
 
-from filemeta.cli import CLI
+from filetools.cli import CLI
 CLI()
 

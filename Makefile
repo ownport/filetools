@@ -1,5 +1,5 @@
 PYTHON ?= /usr/bin/env python3
-PROJECT_NAME_BIN ?= filemeta
+PROJECT_NAME_BIN ?= filetools
 PROJECT_NAME_SRC ?= src
 
 clean:

@@ -1,2 +1,5 @@
-# filemeta
-Tools for collection metadata of files
+# filetools
+
+Tools for collecting and managing of files metadata
+
+
