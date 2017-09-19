@@ -64,14 +64,14 @@ def get_tags_from_path(path, prefix=None, ignore_tags=list()):
 def scan_directory(path):
     ''' scan directory
     '''
-    logger.info('The scanning was started,: {}'.format(path))
+    logger.info('The scanning was started, {}'.format(path))
     for root, dirs, files in os.walk(path):
         if not files:
             continue
         for filename in files:
             filepath = os.path.join(root, filename)
             yield filepath
-    logger.info('The scaning was completed successfully')
+    logger.info('The scanning was completed successfully')
 
 
 def get_meta(filepath, ignore_tags=[]):
