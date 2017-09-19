@@ -1,19 +1,23 @@
 
 import os
+import re
 import sys
 import json
 import logging
 import argparse
 
+from collections import Counter
 
-from filetools import FILEMETA_VERSION
 from filetools import utils
+from filetools import FILEMETA_VERSION
 
 
 FILEMETA_USAGE = '''filemeta <command> [<args>]
 The list of commands:
-    scan    scan files into the directory for metadata           
-    info    collect metedata from the file        
+    stats       collect statistics about files in the directory
+    scan        scan files into the directory for metadata           
+    info        collect metedata from the file        
+    normalize   normalize filenames
 '''
 
 logger = logging.getLogger(__name__)
@@ -43,6 +47,8 @@ class CLI():
 
     @staticmethod
     def scan():
+        ''' scan directory for collecting files metadata
+        '''
         parser = argparse.ArgumentParser(description='scan files into the directory for metadata')
         parser.add_argument('-d', '--directory', dest='path', required=True,
                             help="the path to the directory for file scanning")
@@ -60,5 +66,53 @@ class CLI():
             print(json.dumps(utils.get_meta(filepath, ignore_tags=args.ignore_tags)))
 
     @staticmethod
+    def stats():
+        ''' scan directory for collection general stats about files
+        '''
+        parser = argparse.ArgumentParser(description='scan files into the directory for metadata')
+        parser.add_argument('-d', '--directory', dest='path', required=True,
+                            help="the path to the directory for file scanning")
+        args = parser.parse_args(sys.argv[2:])
+
+        if not os.path.exists(args.path) or not os.path.isdir(args.path):
+            parser.print_usage()
+            logger.error('The directory does not exist or not directory, {}'.format(args.path))
+            sys.exit(1)
+
+        files = Counter()
+        extensions = Counter()
+        for filepath in utils.scan_directory(args.path):
+            files['total_files'] += 1
+            extensions[os.path.splitext(filepath)[1]] += 1
+
+        result = dict(files)
+        result['extensions'] = dict(extensions)
+        print(json.dumps(result))
+
+    @staticmethod
+    def normalize():
+        ''' normalize filename according to predefined rules
+
+        - extensions shall be in lower case
+        '''
+        parser = argparse.ArgumentParser(description='scan files into the directory for metadata')
+        parser.add_argument('-d', '--directory', dest='path', required=True,
+                            help="the path to the directory for file scanning")
+        args = parser.parse_args(sys.argv[2:])
+
+        if not os.path.exists(args.path) or not os.path.isdir(args.path):
+            parser.print_usage()
+            logger.error('The directory does not exist or not directory, {}'.format(args.path))
+            sys.exit(1)
+
+        for filepath in utils.scan_directory(args.path):
+            # file extensions shall be in lower case
+            _filepath, _fileext = os.path.splitext(filepath)
+            _filepath = '{}{}'.format(_filepath, _fileext.lower())
+            if filepath != _filepath:
+                logger.info('Rename file, {} to {}'.format(filepath, _filepath))
+                os.rename(filepath, _filepath)
+
+    @staticmethod
     def info():
-        pass
+        logger.warning('Not implemented yet')
