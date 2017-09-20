@@ -1,6 +1,5 @@
 
 import os
-import re
 import sys
 import json
 import logging
@@ -12,7 +11,7 @@ from filetools import utils
 from filetools import FILEMETA_VERSION
 
 
-FILEMETA_USAGE = '''filemeta <command> [<args>]
+FILETOOLS_USAGE = '''filetools <command> [<args>]
 The list of commands:
     stats       collect statistics about files in the directory
     scan        scan files into the directory for metadata           
@@ -26,9 +25,9 @@ logger = logging.getLogger(__name__)
 class CLI():
 
     def __init__(self):
-        parser = argparse.ArgumentParser(usage=FILEMETA_USAGE)
+        parser = argparse.ArgumentParser(usage=FILETOOLS_USAGE)
         parser.add_argument('-v', '--version', action='version',
-                            version='filemeta-v{}'.format(FILEMETA_VERSION))
+                            version='filetools-v{}'.format(FILEMETA_VERSION))
         parser.add_argument('-l', '--log_level', default='DEBUG',
                             help='Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL')
         parser.add_argument('command', help='Subcommand to run')
@@ -106,9 +105,20 @@ class CLI():
             sys.exit(1)
 
         for filepath in utils.scan_directory(args.path):
-            # file extensions shall be in lower case
             _filepath, _fileext = os.path.splitext(filepath)
-            _filepath = '{}{}'.format(_filepath, _fileext.lower())
+
+            # file extensions shall be in lower case
+            _fileext = _fileext.lower()
+
+            # file extensions mapping to common extension formats
+            EXT_MAPPING = {
+                '.djv': '.djvu'
+            }
+
+            if _fileext in EXT_MAPPING:
+                _fileext = EXT_MAPPING[_fileext]
+
+            _filepath = '{}{}'.format(_filepath, _fileext)
             if filepath != _filepath:
                 logger.info('Rename file, {} to {}'.format(filepath, _filepath))
                 os.rename(filepath, _filepath)
