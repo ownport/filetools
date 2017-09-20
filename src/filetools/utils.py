@@ -74,7 +74,7 @@ def scan_directory(path):
     logger.info('The scanning was completed successfully')
 
 
-def get_meta(filepath, ignore_tags=[]):
+def get_meta(filepath, ignore_tags=()):
     ''' return meta by filepath
     '''
     return {
