@@ -60,9 +60,12 @@ class CLI():
             logger.error('The directory does not exist or not directory, {}'.format(args.path))
             sys.exit(1)
 
+        total_files = 0
         for filepath in utils.scan_directory(args.path):
-            logger.info('Processing the file, {}'.format(filepath))
-            print(json.dumps(utils.get_meta(filepath, ignore_tags=args.ignore_tags)))
+            total_files += 1
+            meta = utils.get_meta(filepath, ignore_tags=args.ignore_tags)
+            print(json.dumps(meta))
+        logger.info('Total processed files: {}'.format(total_files))
 
     @staticmethod
     def stats():
