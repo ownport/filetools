@@ -60,12 +60,15 @@ class CLI():
             logger.error('The directory does not exist or not directory, {}'.format(args.path))
             sys.exit(1)
 
-        total_files = 0
-        for filepath in utils.scan_directory(args.path):
-            total_files += 1
-            meta = utils.get_meta(filepath, ignore_tags=args.ignore_tags)
-            print(json.dumps(meta))
-        logger.info('Total processed files: {}'.format(total_files))
+        try:
+            total_files = 0
+            for filepath in utils.scan_directory(args.path):
+                total_files += 1
+                meta = utils.get_meta(filepath, ignore_tags=args.ignore_tags)
+                print(json.dumps(meta))
+            logger.info('Total processed files: {}'.format(total_files))
+        except KeyboardInterrupt:
+            print("Interrupted by user")
 
     @staticmethod
     def stats():
@@ -81,15 +84,18 @@ class CLI():
             logger.error('The directory does not exist or not directory, {}'.format(args.path))
             sys.exit(1)
 
-        files = Counter()
-        extensions = Counter()
-        for filepath in utils.scan_directory(args.path):
-            files['total_files'] += 1
-            extensions[os.path.splitext(filepath)[1]] += 1
+        try:
+            files = Counter()
+            extensions = Counter()
+            for filepath in utils.scan_directory(args.path):
+                files['total_files'] += 1
+                extensions[os.path.splitext(filepath)[1]] += 1
 
-        result = dict(files)
-        result['extensions'] = dict(extensions)
-        print(json.dumps(result))
+            result = dict(files)
+            result['extensions'] = dict(extensions)
+            print(json.dumps(result))
+        except KeyboardInterrupt:
+            print("Interrupted by user")
 
     @staticmethod
     def normalize():
@@ -107,24 +113,27 @@ class CLI():
             logger.error('The directory does not exist or not directory, {}'.format(args.path))
             sys.exit(1)
 
-        for filepath in utils.scan_directory(args.path):
-            _filepath, _fileext = os.path.splitext(filepath)
+        try:
+            for filepath in utils.scan_directory(args.path):
+                _filepath, _fileext = os.path.splitext(filepath)
 
-            # file extensions shall be in lower case
-            _fileext = _fileext.lower()
+                # file extensions shall be in lower case
+                _fileext = _fileext.lower()
 
-            # file extensions mapping to common extension formats
-            EXT_MAPPING = {
-                '.djv': '.djvu'
-            }
+                # file extensions mapping to common extension formats
+                EXT_MAPPING = {
+                    '.djv': '.djvu'
+                }
 
-            if _fileext in EXT_MAPPING:
-                _fileext = EXT_MAPPING[_fileext]
+                if _fileext in EXT_MAPPING:
+                    _fileext = EXT_MAPPING[_fileext]
 
-            _filepath = '{}{}'.format(_filepath, _fileext)
-            if filepath != _filepath:
-                logger.info('Rename file, {} to {}'.format(filepath, _filepath))
-                os.rename(filepath, _filepath)
+                _filepath = '{}{}'.format(_filepath, _fileext)
+                if filepath != _filepath:
+                    logger.info('Rename file, {} to {}'.format(filepath, _filepath))
+                    os.rename(filepath, _filepath)
+        except KeyboardInterrupt:
+            print("Interrupted by user")
 
     @staticmethod
     def info():
