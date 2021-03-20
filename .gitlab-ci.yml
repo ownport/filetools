@@ -3,18 +3,14 @@ image: registry.gitlab.com/ownport/docker-images/python:3.8-dev-alpine
 
 stages:
 - test
-- release
-- build
-- deploy
+# - release
+# - build
+# - deploy
 
 test:
   stage: test
   script:
-    # - pip3 install -e .
-    # - pytest 
-    # # - pip install tox flake8  # you can also use tox
-    # # - tox -e py36,flake8
-    - /usr/sbin/dev/run-pytests.sh
+    - make test
   artifacts:
     reports:
       junit: report.xml
