@@ -14,7 +14,7 @@ testpaths = [
 junit_family = "xunit2"
 filterwarnings = "error"
 addopts = '''
-    --cov=sample 
+    --cov=filetools 
     --cov-report xml 
     -p no:cacheprovider 
     --junitxml=report.xml 
