@@ -13,7 +13,6 @@ function help() {
     echo "Usage: ./manage.sh <command>"
     echo 
     echo "Commands:"
-    echo "  clean       :"
     echo "  compile     : compile code to zip package"
     echo
 }
