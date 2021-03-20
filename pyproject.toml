@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=49", "wheel", "setuptools_scm[toml]>=5"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "src/filetools/version.py"
+
+[tool.pylint]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+junit_family = "xunit2"
+filterwarnings = "error"
+addopts = '''
+    --cov=sample 
+    --cov-report xml 
+    -p no:cacheprovider 
+    --junitxml=report.xml 
+    --cov-report=term-missing 
+    --cov-config=pyproject.toml
+'''
+
+[tool.coverage.run]
+branch = true
+parallel = true
+
+[tool.coverage.report]
+show_missing = true
+precision = 0
+
+[flake8]
+max-line-length = 120
