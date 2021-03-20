@@ -39,15 +39,18 @@ def get_tags_from_path(path, prefix=None, ignore_tags=list()):
     return list(set(result))
 
 
-def scan_directory(path):
+def scan_directory(path:str, remove_root_path:bool=False):
     ''' scan directory
     '''
     logger.info('The scanning was started, {}'.format(path))
+
     for root, _, files in os.walk(path):
         if not files:
             continue
         for filename in files:
             filepath = os.path.join(root, filename)
+            if remove_root_path:
+                filepath = filepath.replace(path, '')
             yield filepath
     logger.info('The scanning was completed successfully')
 
