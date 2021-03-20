@@ -8,7 +8,7 @@ import argparse
 from collections import Counter
 
 from filetools import utils
-from filetools import FILEMETA_VERSION
+from filetools.version import version
 
 
 FILETOOLS_USAGE = '''filetools <command> [<args>]
@@ -27,7 +27,7 @@ class CLI():
     def __init__(self):
         parser = argparse.ArgumentParser(usage=FILETOOLS_USAGE)
         parser.add_argument('-v', '--version', action='version',
-                            version='filetools-v{}'.format(FILEMETA_VERSION))
+                            version='filetools-v{}'.format(version))
         parser.add_argument('-l', '--log_level', default='DEBUG',
                             help='Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL')
         parser.add_argument('command', help='Subcommand to run')
