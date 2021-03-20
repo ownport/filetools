@@ -8,7 +8,7 @@ import argparse
 from collections import Counter
 
 from filetools import utils
-from filetools import FILEMETA_VERSION
+from filetools.version import version
 
 
 FILETOOLS_USAGE = '''filetools <command> [<args>]
@@ -27,7 +27,7 @@ class CLI():
     def __init__(self):
         parser = argparse.ArgumentParser(usage=FILETOOLS_USAGE)
         parser.add_argument('-v', '--version', action='version',
-                            version='filetools-v{}'.format(FILEMETA_VERSION))
+                            version='filetools-v{}'.format(version))
         parser.add_argument('-l', '--log_level', default='DEBUG',
                             help='Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL')
         parser.add_argument('command', help='Subcommand to run')
@@ -60,9 +60,15 @@ class CLI():
             logger.error('The directory does not exist or not directory, {}'.format(args.path))
             sys.exit(1)
 
-        for filepath in utils.scan_directory(args.path):
-            logger.info('Processing the file, {}'.format(filepath))
-            print(json.dumps(utils.get_meta(filepath, ignore_tags=args.ignore_tags)))
+        try:
+            total_files = 0
+            for filepath in utils.scan_directory(args.path):
+                total_files += 1
+                meta = utils.get_meta(filepath, ignore_tags=args.ignore_tags)
+                print(json.dumps(meta))
+            logger.info('Total processed files: {}'.format(total_files))
+        except KeyboardInterrupt:
+            print("Interrupted by user")
 
     @staticmethod
     def stats():
@@ -78,15 +84,18 @@ class CLI():
             logger.error('The directory does not exist or not directory, {}'.format(args.path))
             sys.exit(1)
 
-        files = Counter()
-        extensions = Counter()
-        for filepath in utils.scan_directory(args.path):
-            files['total_files'] += 1
-            extensions[os.path.splitext(filepath)[1]] += 1
+        try:
+            files = Counter()
+            extensions = Counter()
+            for filepath in utils.scan_directory(args.path):
+                files['total_files'] += 1
+                extensions[os.path.splitext(filepath)[1]] += 1
 
-        result = dict(files)
-        result['extensions'] = dict(extensions)
-        print(json.dumps(result))
+            result = dict(files)
+            result['extensions'] = dict(extensions)
+            print(json.dumps(result))
+        except KeyboardInterrupt:
+            print("Interrupted by user")
 
     @staticmethod
     def normalize():
@@ -104,24 +113,27 @@ class CLI():
             logger.error('The directory does not exist or not directory, {}'.format(args.path))
             sys.exit(1)
 
-        for filepath in utils.scan_directory(args.path):
-            _filepath, _fileext = os.path.splitext(filepath)
+        try:
+            for filepath in utils.scan_directory(args.path):
+                _filepath, _fileext = os.path.splitext(filepath)
 
-            # file extensions shall be in lower case
-            _fileext = _fileext.lower()
+                # file extensions shall be in lower case
+                _fileext = _fileext.lower()
 
-            # file extensions mapping to common extension formats
-            EXT_MAPPING = {
-                '.djv': '.djvu'
-            }
+                # file extensions mapping to common extension formats
+                EXT_MAPPING = {
+                    '.djv': '.djvu'
+                }
 
-            if _fileext in EXT_MAPPING:
-                _fileext = EXT_MAPPING[_fileext]
+                if _fileext in EXT_MAPPING:
+                    _fileext = EXT_MAPPING[_fileext]
 
-            _filepath = '{}{}'.format(_filepath, _fileext)
-            if filepath != _filepath:
-                logger.info('Rename file, {} to {}'.format(filepath, _filepath))
-                os.rename(filepath, _filepath)
+                _filepath = '{}{}'.format(_filepath, _fileext)
+                if filepath != _filepath:
+                    logger.info('Rename file, {} to {}'.format(filepath, _filepath))
+                    os.rename(filepath, _filepath)
+        except KeyboardInterrupt:
+            print("Interrupted by user")
 
     @staticmethod
     def info():

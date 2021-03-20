@@ -1,32 +1,10 @@
 
 import os
 import re
-import sys
 import hashlib
 import logging
 
 logger = logging.getLogger(__name__)
-
-def clean_syspath():
-    ''' Cleaner removes from sys.path any external libs to avoid potential
-    # conflicts with existing system libraries
-
-    :return: updated sys.path
-    '''
-    result = []
-    for p in sys.path:
-        if p.endswith('site-packages'):
-            continue
-        if p.endswith('dist-packages'):
-            continue
-        if p.endswith('lib-old'):
-            continue
-        if p.endswith('lib-tk'):
-            continue
-        if p.endswith('gtk-2.0'):
-            continue
-        result.append(p)
-    return result
 
 
 def filehash(path):
@@ -61,15 +39,18 @@ def get_tags_from_path(path, prefix=None, ignore_tags=list()):
     return list(set(result))
 
 
-def scan_directory(path):
+def scan_directory(path:str, remove_root_path:bool=False):
     ''' scan directory
     '''
     logger.info('The scanning was started, {}'.format(path))
-    for root, dirs, files in os.walk(path):
+
+    for root, _, files in os.walk(path):
         if not files:
             continue
         for filename in files:
             filepath = os.path.join(root, filename)
+            if remove_root_path:
+                filepath = filepath.replace(path, '')
             yield filepath
     logger.info('The scanning was completed successfully')
 
