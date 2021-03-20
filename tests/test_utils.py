@@ -49,6 +49,5 @@ def test_utils_scan_directory(request):
     ''' test for directory scan
     '''
     path = os.path.join(request.fspath.dirname, 'resources')
-    files = list(scan_directory(path))
-    assert files == [
-    ]
+    files = list(scan_directory(path, remove_root_path=True))
+    assert files == [ '/test_file.1' ]
