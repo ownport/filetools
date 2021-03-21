@@ -43,15 +43,18 @@ optional arguments:
 
 ```bash
 $ filetools scan --help
-usage: filetools [-h] -d PATH [-i IGNORE_TAGS]
+usage: filetools [-h] --path PATH [--output-type {jsonline,sqlite3}] [--output-file OUTPUT_FILE] [--ignore-tag IGNORE_TAGS]
 
 scan files into the directory for metadata
 
 optional arguments:
   -h, --help            show this help message and exit
-  -d PATH, --directory PATH
-                        the path to the directory for file scanning
-  -i IGNORE_TAGS, --ignore-tags IGNORE_TAGS
+  --path PATH           the path to the directory for file scanning
+  --output-type {jsonline,sqlite3}
+                        the output type, possible options: jsonline or sqlite3
+  --output-file OUTPUT_FILE
+                        the path output file for storing metadata
+  --ignore-tag IGNORE_TAGS
                         the tags for ignoring
 ```
 

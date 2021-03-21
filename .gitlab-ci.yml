@@ -1,0 +1,45 @@
+---
+image: registry.gitlab.com/ownport/docker-images/python:3.8-dev-alpine
+
+stages:
+- test
+# - release
+# - build
+# - deploy
+
+test:
+  stage: test
+  script:
+    - make test
+  artifacts:
+    reports:
+      junit: report.xml
+
+
+# build:
+#   stage: build
+#   script:
+#     - python3 -m build
+#     # - python setup.py bdist_wheel
+#     # an alternative approach is to install and run:
+#     # - pip install dist/*
+#     # run the command here
+#   artifacts:
+#     paths:
+#     - dist/*.whl
+#     - dist/*.tar.gz
+#     expire_in: 5 mins
+#   only:
+#   - tags
+
+
+# deploy:
+#   stage: deploy
+#   script:
+#   - >
+#     TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token 
+#     python3 -m twine upload 
+#     --repository-url https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/pypi
+#     dist/*
+#   only:
+#   - tags

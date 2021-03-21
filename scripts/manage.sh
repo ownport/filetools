@@ -17,26 +17,36 @@ function help() {
     echo
 }
 
-function compile() {
+function cleanup() {
 
     CURRENT_DIR=$(pwd)
-    echo "[INFO] Compiling code to zip package, ${CURRENT_DIR}" && \
-
     echo "[INFO] Cleanup ${CURRENT_DIR%%/}/src/ directory before compile" && \
         [ -d "${CURRENT_DIR}/src/filetools/__pycache__" ] && \
             rm -rf ${CURRENT_DIR}/src/filetools/__pycache__
         [ -d "${CURRENT_DIR}/src/filetools/filetools.egg-info" ] && \
             rm -rf ${CURRENT_DIR}/src/filetools/filetools.egg-info
 
-    mkdir -p $(pwd)/target && \
-        rm -rf ${pwd}/target/*
+    echo "[INFO] Cleaning directory:" ${CURRENT_DIR}/dist && \
+        rm -rf ${CURRENT_DIR}/dist
+
+    echo "[INFO] Cleaning files: *.pyc" && \
+        find . -name "*.pyc" -delete
+}
+
+function compile() {
+
+    CURRENT_DIR=$(pwd)
+    echo "[INFO] Compiling code to zip package, ${CURRENT_DIR}" && \
+
+    mkdir -p $(pwd)/dist && \
+        rm -rf ${pwd}/dist/*
     
-    cd $(pwd)/src && zip -r ../target/${PROJECT_NAME_BIN} * && cd -
+    cd $(pwd)/src && zip -r ../dist/${PROJECT_NAME_BIN} * && cd -
     
-    echo "#!${PYTHON}" > target/${PROJECT_NAME_BIN} && \
-        cat target/${PROJECT_NAME_BIN}.zip >> target/${PROJECT_NAME_BIN} && \
-        rm target/${PROJECT_NAME_BIN}.zip && \
-        chmod +x target/${PROJECT_NAME_BIN}
+    echo "#!${PYTHON}" > dist/${PROJECT_NAME_BIN} && \
+        cat dist/${PROJECT_NAME_BIN}.zip >> dist/${PROJECT_NAME_BIN} && \
+        rm dist/${PROJECT_NAME_BIN}.zip && \
+        chmod +x dist/${PROJECT_NAME_BIN}
 }
 
 $@

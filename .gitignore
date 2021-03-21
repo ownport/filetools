@@ -120,3 +120,6 @@ src/filetools/version.py
 
 # IDE
 .vscode
+
+# Temp directories
+tmp/

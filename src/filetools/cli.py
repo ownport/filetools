@@ -8,6 +8,7 @@ import argparse
 from collections import Counter
 
 from filetools import utils
+from filetools.scanner import Scanner
 from filetools.version import version
 
 
@@ -48,27 +49,8 @@ class CLI():
     def scan():
         ''' scan directory for collecting files metadata
         '''
-        parser = argparse.ArgumentParser(description='scan files into the directory for metadata')
-        parser.add_argument('-d', '--directory', dest='path', required=True,
-                            help="the path to the directory for file scanning")
-        parser.add_argument('-i', '--ignore-tags', action='append',
-                            help='the tags for ignoring')
-        args = parser.parse_args(sys.argv[2:])
-
-        if not os.path.exists(args.path) or not os.path.isdir(args.path):
-            parser.print_usage()
-            logger.error('The directory does not exist or not directory, {}'.format(args.path))
-            sys.exit(1)
-
-        try:
-            total_files = 0
-            for filepath in utils.scan_directory(args.path):
-                total_files += 1
-                meta = utils.get_meta(filepath, ignore_tags=args.ignore_tags)
-                print(json.dumps(meta))
-            logger.info('Total processed files: {}'.format(total_files))
-        except KeyboardInterrupt:
-            print("Interrupted by user")
+        scanner = Scanner(sys.argv[2:])
+        scanner.run()
 
     @staticmethod
     def stats():
