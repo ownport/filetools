@@ -58,3 +58,9 @@ class Scanner:
             logger.info('Total processed files: {}'.format(total_files))
         except KeyboardInterrupt:
             print("Interrupted by user")
+
+    def close(self):
+        ''' complete work with scanner
+        '''
+        self._metastore.close()
+        self._metastore = None
