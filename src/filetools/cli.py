@@ -1,15 +1,17 @@
 
 import os
 import sys
-import json
 import logging
 import argparse
 
 from collections import Counter
+from typing import DefaultDict
 
 from filetools import utils
 from filetools.scanner import Scanner
 from filetools.version import version
+from filetools.utils import convert_size
+from filetools.libs.tabulate import tabulate
 
 
 FILETOOLS_USAGE = '''filetools <command> [<args>]
@@ -57,8 +59,11 @@ class CLI():
         ''' scan directory for collection general stats about files
         '''
         parser = argparse.ArgumentParser(description='scan files into the directory for metadata')
-        parser.add_argument('-d', '--directory', dest='path', required=True,
+        parser.add_argument('--path', dest='path', required=True,
                             help="the path to the directory for file scanning")
+        parser.add_argument('--sort-by', dest='sort_by', default='size',
+                            choices=['files', 'size'],
+                            help="sort output by number or files or size")
         args = parser.parse_args(sys.argv[2:])
 
         if not os.path.exists(args.path) or not os.path.isdir(args.path):
@@ -67,15 +72,26 @@ class CLI():
             sys.exit(1)
 
         try:
-            files = Counter()
-            extensions = Counter()
+            files = 0
+            stats = DefaultDict(lambda: DefaultDict(int))
             for filepath in utils.scan_directory(args.path):
-                files['total_files'] += 1
-                extensions[os.path.splitext(filepath)[1]] += 1
+                files  += 1
+                ext = os.path.splitext(filepath)[1]
+                stats[ext]['files'] += 1
+                stats[ext]['size'] += os.stat(filepath).st_size
 
-            result = dict(files)
-            result['extensions'] = dict(extensions)
-            print(json.dumps(result))
+            data = [(ext, info['files'], info['size'] ) for ext, info in stats.items()]
+            sorting_field_id = 1 if args.sort_by == 'files' else 2 # if by size
+            data = sorted(data, key=lambda x: x[sorting_field_id], reverse=True)
+            data = [(ext, files, convert_size(size)) for ext, files, size in data]
+            print()
+            print(tabulate(
+                    data, 
+                    headers=['Extension', "Files", "Size"], 
+                    tablefmt="github")
+            )
+            print(f"\nTotal files: {files}")
+
         except KeyboardInterrupt:
             print("Interrupted by user")
 
