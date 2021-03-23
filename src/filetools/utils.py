@@ -1,6 +1,7 @@
 
 import os
 import re
+import math
 import hashlib
 import logging
 
@@ -74,3 +75,15 @@ def pairtree_path(filehash, level=2):
     parts = [filehash[(i*2):(i*2)+2] for i,l in enumerate(range(level))]
     parts.append(filehash)
     return os.sep.join(parts)
+
+
+def convert_size(size_bytes:int) -> str:
+    ''' convert size in bytes to string in human readable format
+    '''
+    if size_bytes == 0:
+        return "0B"
+    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+    i = int(math.floor(math.log(size_bytes, 1024)))
+    p = math.pow(1024, i)
+    s = round(size_bytes / p, 2)
+    return "%s %s" % (s, size_name[i])
