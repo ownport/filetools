@@ -4,7 +4,6 @@ import sys
 import logging
 import argparse
 
-from collections import Counter
 from typing import DefaultDict
 
 from filetools import utils
@@ -51,8 +50,24 @@ class CLI():
     def scan():
         ''' scan directory for collecting files metadata
         '''
-        scanner = Scanner(sys.argv[2:])
-        scanner.run()
+        parser = argparse.ArgumentParser(description='scan files into the directory for metadata')
+        parser.add_argument('--path', dest='path', required=True,
+                            help="the path to the directory for file scanning")
+        parser.add_argument('--output-type', dest='output_type',
+                            choices=['jsonline', 'sqlite3'],
+                            help="the output type")
+        parser.add_argument('--output-file', dest='output_file',
+                            help="the path output file for storing metadata")
+        parser.add_argument('--ignore-tag', dest='ignore_tags', action='append',
+                            help='the tags for ignoring')
+        _args = parser.parse_args(sys.argv[2:])
+
+        try:
+            scanner = Scanner(_args.path, _args.output_type, _args.output_file, _args.ignore_tags)
+            scanner.scan_files()
+            scanner.close()
+        except Exception as err:
+            logger.error(err)
 
     @staticmethod
     def stats():
@@ -74,7 +89,7 @@ class CLI():
         try:
             files = 0
             stats = DefaultDict(lambda: DefaultDict(int))
-            for filepath in utils.scan_directory(args.path):
+            for filepath in utils.scan_files(args.path):
                 files  += 1
                 ext = os.path.splitext(filepath)[1]
                 stats[ext]['files'] += 1
@@ -112,7 +127,7 @@ class CLI():
             sys.exit(1)
 
         try:
-            for filepath in utils.scan_directory(args.path):
+            for filepath in utils.scan_files(args.path):
                 _filepath, _fileext = os.path.splitext(filepath)
 
                 # file extensions shall be in lower case
