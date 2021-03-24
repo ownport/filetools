@@ -4,6 +4,7 @@ import re
 import math
 import hashlib
 import logging
+from typing import Generator
 
 logger = logging.getLogger(__name__)
 
@@ -40,8 +41,8 @@ def get_tags_from_path(path, prefix=None, ignore_tags=list()):
     return list(set(result))
 
 
-def scan_directory(path:str, remove_root_path:bool=False):
-    ''' scan directory
+def scan_files(path:str, remove_root_path:bool=False) -> Generator:
+    ''' scan files in directory
     '''
     logger.info('The scanning was started, {}'.format(path))
 
@@ -87,3 +88,44 @@ def convert_size(size_bytes:int) -> str:
     p = math.pow(1024, i)
     s = round(size_bytes / p, 2)
     return "%s %s" % (s, size_name[i])
+
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
+                        length = 100, fill = '█', printEnd = "\r"):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+
+    Sample of usage    
+    ------------------
+    ```
+    import time
+
+    # A List of Items
+    items = list(range(0, 57))
+    l = len(items)
+
+    # Initial call to print 0% progress
+    printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
+    for i, item in enumerate(items):
+        # Do stuff...
+        time.sleep(0.1)
+        # Update Progress Bar
+        printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
+    ```
+    original link: https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
+    # Print New Line on Complete
+    if iteration == total: 
+        print()
