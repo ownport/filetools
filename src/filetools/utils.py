@@ -4,6 +4,9 @@ import re
 import math
 import hashlib
 import logging
+import pathlib
+
+from typing import Generator
 
 logger = logging.getLogger(__name__)
 
@@ -40,11 +43,9 @@ def get_tags_from_path(path, prefix=None, ignore_tags=list()):
     return list(set(result))
 
 
-def scan_directory(path:str, remove_root_path:bool=False):
-    ''' scan directory
+def scan_files(path:str, remove_root_path:bool=False) -> Generator:
+    ''' scan files in directory
     '''
-    logger.info('The scanning was started, {}'.format(path))
-
     for root, _, files in os.walk(path):
         if not files:
             continue
@@ -53,8 +54,6 @@ def scan_directory(path:str, remove_root_path:bool=False):
             if remove_root_path:
                 filepath = filepath.replace(path, '')
             yield filepath
-    logger.info('The scanning was completed successfully')
-
 
 def get_meta(filepath, ignore_tags=()):
     ''' return meta by filepath
@@ -87,3 +86,44 @@ def convert_size(size_bytes:int) -> str:
     p = math.pow(1024, i)
     s = round(size_bytes / p, 2)
     return "%s %s" % (s, size_name[i])
+
+def progress_bar (iteration:int, total:int, 
+                    prefix:str = 'Progress:', suffix:str = 'Completed',
+                    decimals:int = 1, length:int = 50, 
+                    fill:str = '#', print_end:str = "\r"):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+        print_end    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+
+    Sample of usage    
+    ------------------
+    ```
+    import time
+
+    # A List of Items
+    items = list(range(0, 57))
+    l = len(items)
+
+    # Initial call to print 0% progress
+    progress_bar(0, l)
+    for i, item in enumerate(items):
+        # Do stuff...
+        time.sleep(0.1)
+        # Update Progress Bar
+        printProgressBar(i + 1, l)
+    ```
+    original link: https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filled_length = int(length * iteration // total)
+    bar = fill * filled_length + '-' * (length - filled_length)
+    print(f'\r{prefix} [{bar}] {percent}% {suffix}', end = print_end)
+

@@ -1,61 +1,80 @@
 
 import os
-import sys
 import json
 import logging
-import argparse
+import pathlib
+
+from collections import Counter
 
 from filetools.formats import sqlite
 from filetools.formats import jsonline
 
 from filetools.utils import get_meta
-from filetools.utils import scan_directory
+from filetools.utils import scan_files
+from filetools.utils import progress_bar
+from filetools.libs.tabulate import tabulate
 
 logger = logging.getLogger(__name__)
 
 
 class Scanner:
 
-    def __init__(self, args) -> None:
-        parser = argparse.ArgumentParser(description='scan files into the directory for metadata')
-        parser.add_argument('--path', dest='path', required=True,
-                            help="the path to the directory for file scanning")
-        parser.add_argument('--output-type', dest='output_type',
-                            choices=['jsonline', 'sqlite3'],
-                            help="the output type, possible options: jsonline or sqlite3")
-        parser.add_argument('--output-file', dest='output_file',
-                            help="the path output file for storing metadata")
-        parser.add_argument('--ignore-tag', dest='ignore_tags', action='append',
-                            help='the tags for ignoring')
-        _args = parser.parse_args(args)
+    def __init__(self, path:str, output_type:str, output_file:str, ignore_tags:list) -> None:
 
-        if not os.path.exists(_args.path) or not os.path.isdir(_args.path):
-            parser.print_usage()
-            logger.error('The directory does not exist or not directory, {}'.format(_args.path))
-            sys.exit(1)
+        if not os.path.exists(path) or not os.path.isdir(path):
+            raise ValueError('The directory does not exist or not a directory, {}'.format(path))
 
-        self._path = _args.path
-        if _args.output_type == 'jsonline':
-            self._metastore = jsonline.Metastore(_args.output_file)
+        self._path = path
+        if not output_type or output_type not in ('jsonline', 'sqlite3'):
+            raise ValueError(f'The output type must be jsonline or sqlite3, founded: {output_type}')
+
+        if output_type == 'jsonline':
+            self._metastore = jsonline.Metastore(output_file)
         else:
-            self._metastore = sqlite.Metastore(_args.output_file)
-        self._ignore_tags = _args.ignore_tags
+            self._metastore = sqlite.Metastore(output_file)
+        self._ignore_tags = ignore_tags
 
-    def run(self):
-        ''' run scanner
+    def scan_files(self):
+        ''' run scanner for getting files metadata
         '''
+        processed_files = 0
+        total_files = self.stats().get('total files')
+        
         try:
-            total_files = 0
-            for filepath in scan_directory(self._path):
-                total_files += 1
+            progress_bar(processed_files, total_files)
+            for filepath in scan_files(self._path):
+                processed_files += 1
                 meta = get_meta(filepath, ignore_tags=self._ignore_tags)
                 meta['tags'] = json.dumps(meta['tags'])
                 self._metastore.put(meta)
-                if total_files % 1000 == 0:
-                    logger.info("Processed {} files".format(total_files))
+                if processed_files % 100 == 0:
+                    progress_bar(processed_files, total_files)
                     self._metastore.commit()
             self._metastore.commit()
-            logger.info('Total processed files: {}'.format(total_files))
+            print()
+            print(tabulate((
+                    ('Processed files', processed_files),
+                    ('Total files', total_files)
+                ),tablefmt='github')
+            )
+        except KeyboardInterrupt:
+            print("Interrupted by user")
+
+    def stats(self):
+        ''' scan directory for gettings statistics
+        returns the next metrics:
+        - total files
+        - total directories
+        - total size
+        '''
+        try:
+            metrics = Counter()
+            for root, _, files in os.walk(self._path):
+                metrics['total files'] += len(files)
+                metrics['total directories'] += 1
+                for filename in files:
+                    metrics['total size'] += pathlib.Path(os.path.join(root, filename)).stat().st_size
+            return dict(metrics)
         except KeyboardInterrupt:
             print("Interrupted by user")
 
