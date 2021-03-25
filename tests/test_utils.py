@@ -4,7 +4,7 @@ import sys
 
 from filetools.utils import filehash
 from filetools.utils import get_tags_from_path
-from filetools.utils import scan_directory
+from filetools.utils import scan_files
 
 
 def test_utils_filehash_absent_file():
@@ -49,5 +49,5 @@ def test_utils_scan_directory(request):
     ''' test for directory scan
     '''
     path = os.path.join(request.fspath.dirname, 'resources')
-    files = list(scan_directory(path, remove_root_path=True))
+    files = list(scan_files(path, remove_root_path=True))
     assert files == [ '/test_file.1' ]
