@@ -78,7 +78,7 @@ class CLI():
                             help="the path to the directory for file scanning")
         parser.add_argument('--sort-by', dest='sort_by', default='size',
                             choices=['files', 'size'],
-                            help="sort output by number or files or size")
+                            help="sort output by number or files or size, default: size")
         args = parser.parse_args(sys.argv[2:])
 
         if not os.path.exists(args.path) or not os.path.isdir(args.path):
@@ -93,7 +93,10 @@ class CLI():
                 files  += 1
                 ext = os.path.splitext(filepath)[1]
                 stats[ext]['files'] += 1
-                stats[ext]['size'] += os.stat(filepath).st_size
+                try:
+                    stats[ext]['size'] += os.stat(filepath).st_size
+                except (OSError, FileNotFoundError) as err:
+                    logger.warning(err)
 
             data = [(ext, info['files'], info['size'] ) for ext, info in stats.items()]
             sorting_field_id = 1 if args.sort_by == 'files' else 2 # if by size
