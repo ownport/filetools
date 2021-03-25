@@ -23,11 +23,15 @@ class Reporter:
         total_directories = 0
         total_empty_files = 0
         total_empty_directories = 0
+        total_size = 0
         try:
             for root, _, files in os.walk(self._path):
                 total_files  += len(files)
                 total_directories += 1
-                total_empty_files += sum([1 for file in files if os.stat(os.path.join(root, file)).st_size == 0])
+                files_size = [os.stat(os.path.join(root, file)).st_size for file in files]
+                total_empty_files += sum([1 for fs in files_size if fs == 0])
+                total_size += sum(files_size)
+
                 if len(files) == 0:
                     total_empty_directories =+ 1
 
@@ -36,7 +40,8 @@ class Reporter:
                     (('Total files', total_files),
                     ('Total directories', total_directories),
                     ('Total empty files', total_empty_files),
-                    ('Total empty directories', total_empty_directories)),
+                    ('Total empty directories', total_empty_directories),
+                    ('Total size', convert_size(total_size))),
                     headers=('Metric', 'Value'),
                     tablefmt="github")
             )
