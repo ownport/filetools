@@ -48,6 +48,34 @@ class Cleaner:
         except KeyboardInterrupt:
             print("Interrupted by user")
 
+    def remove_broken_files(self, force:bool=True):
+        ''' remove broken files
+        '''
+        try:
+            total_files = 0
+            total_broken_files = 0
+
+            for filepath in scan_files(self._path):
+                total_files += 1
+                try:
+                    os.stat(filepath)
+                except (FileNotFoundError, OSError) as err:
+                    total_broken_files += 1
+                    if not force:
+                        logger.warning(err)
+                        continue
+                    os.remove(filepath)
+            
+            print(tabulate(
+                (('total files', total_files),
+                ('total broken files', total_broken_files),),
+                tablefmt='github'
+            ))
+            print()
+        except KeyboardInterrupt:
+            print("Interrupted by user")
+
+
     def use_common_file_ext(self, force:bool=False):
         ''' apply rule: use common file extensions
         '''

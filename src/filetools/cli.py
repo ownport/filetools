@@ -126,6 +126,8 @@ class CLI():
                             help="the path to the directory for file scanning")
         parser.add_argument('--use-lower-case-in-file-ext', action='store_true', default=False,  
                             help="use lower case in file extensions, default: False")
+        parser.add_argument('--remove-broken-files', action='store_true', default=False,  
+                            help="remove broken-files")
         parser.add_argument('--force', action='store_true', default=False,  
                             help="apply forced action, default: False")
         args = parser.parse_args(sys.argv[2:])
@@ -138,6 +140,8 @@ class CLI():
         cleaner = Cleaner(args.path)
         if args.use_lower_case_in_file_ext:
             cleaner.use_lower_case_in_file_ext(args.force)
+        if args.remove_broken_files:
+            cleaner.remove_broken_files(args.force)
         
 
     @staticmethod
