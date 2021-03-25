@@ -4,14 +4,11 @@ import sys
 import logging
 import argparse
 
-from typing import DefaultDict
-
 from filetools import utils
 from filetools.cleaner import Cleaner
+from filetools.reporter import Reporter
 from filetools.scanner import Scanner
 from filetools.version import version
-from filetools.utils import convert_size
-from filetools.libs.tabulate import tabulate
 
 
 FILETOOLS_USAGE = '''filetools <command> [<args>]
@@ -87,32 +84,9 @@ class CLI():
             logger.error('The directory does not exist or not directory, {}'.format(args.path))
             sys.exit(1)
 
-        try:
-            files = 0
-            stats = DefaultDict(lambda: DefaultDict(int))
-            for filepath in utils.scan_files(args.path):
-                files  += 1
-                ext = os.path.splitext(filepath)[1]
-                stats[ext]['files'] += 1
-                try:
-                    stats[ext]['size'] += os.stat(filepath).st_size
-                except (OSError, FileNotFoundError) as err:
-                    logger.warning(err)
-
-            data = [(ext, info['files'], info['size'] ) for ext, info in stats.items()]
-            sorting_field_id = 1 if args.sort_by == 'files' else 2 # if by size
-            data = sorted(data, key=lambda x: x[sorting_field_id], reverse=True)
-            data = [(ext, files, convert_size(size)) for ext, files, size in data]
-            print()
-            print(tabulate(
-                    data, 
-                    headers=['Extension', "Files", "Size"], 
-                    tablefmt="github")
-            )
-            print(f"\nTotal files: {files}")
-
-        except KeyboardInterrupt:
-            print("Interrupted by user")
+        reporter = Reporter(args.path)
+        reporter.print_general_stats()
+        reporter.print_file_extension_stats(args.sort_by)
 
     @staticmethod
     def cleanup():
