@@ -24,24 +24,27 @@ class Reporter:
         total_empty_files = 0
         total_empty_directories = 0
         total_size = 0
+
         try:
-            for root, _, files in os.walk(self._path):
+            for root, dirs, files in os.walk(self._path):
                 total_files  += len(files)
                 total_directories += 1
                 files_size = [os.stat(os.path.join(root, file)).st_size for file in files]
                 total_empty_files += sum([1 for fs in files_size if fs == 0])
                 total_size += sum(files_size)
 
-                if len(files) == 0:
-                    total_empty_directories =+ 1
+                if len(files) == 0 and len(dirs) == 0:
+                    total_empty_directories += 1
 
             print("\nGeneral statistics:\n")
             print(tabulate(
-                    (('Total files', total_files),
-                    ('Total directories', total_directories),
-                    ('Total empty files', total_empty_files),
-                    ('Total empty directories', total_empty_directories),
-                    ('Total size', convert_size(total_size))),
+                    (
+                        ('Total files', total_files),
+                        ('Total directories', total_directories),
+                        ('Total empty files', total_empty_files),
+                        ('Total empty directories', total_empty_directories),
+                        ('Total size', convert_size(total_size))
+                    ),
                     headers=('Metric', 'Value'),
                     tablefmt="github")
             )
