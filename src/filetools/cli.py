@@ -101,7 +101,11 @@ class CLI():
         parser.add_argument('--use-lower-case-in-file-ext', action='store_true', default=False,  
                             help="use lower case in file extensions, default: False")
         parser.add_argument('--remove-broken-files', action='store_true', default=False,  
-                            help="remove broken-files")
+                            help="remove broken files")
+        parser.add_argument('--remove-empty-files', action='store_true', default=False,  
+                            help="remove empty files")
+        parser.add_argument('--remove-empty-directories', action='store_true', default=False,  
+                            help="remove empty directories")
         parser.add_argument('--force', action='store_true', default=False,  
                             help="apply forced action, default: False")
         args = parser.parse_args(sys.argv[2:])
@@ -112,11 +116,18 @@ class CLI():
             sys.exit(1)
 
         cleaner = Cleaner(args.path)
+
         if args.use_lower_case_in_file_ext:
             cleaner.use_lower_case_in_file_ext(args.force)
+
         if args.remove_broken_files:
             cleaner.remove_broken_files(args.force)
+
+        if args.remove_empty_files:
+            cleaner.remove_empty_files(args.force)
         
+        if args.remove_empty_directories:
+            cleaner.remove_empty_directories(args.force)
 
     @staticmethod
     def info():

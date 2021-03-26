@@ -75,6 +75,32 @@ class Cleaner:
         except KeyboardInterrupt:
             print("Interrupted by user")
 
+    def remove_empty_files(self, force:bool=False):
+        ''' remove empty files
+        '''
+        try:
+            for filepath in scan_files(self._path):
+                if os.stat(filepath).st_size == 0:
+                    if not force:
+                        logger.warning(f"The empty file detected, {filepath}")
+                        continue
+                    os.remove(filepath)
+        except KeyboardInterrupt:
+            print("Interrupted by user")
+
+    def remove_empty_directories(self, force:bool=False):
+        ''' remove empty directories
+        '''
+        try:
+            for root, dirs, files in os.walk(self._path):
+                if len(files) == 0 and len(dirs) == 0:
+                    if not force:
+                        logger.warning(f'The empty directory detected, {root}')
+                        continue
+                    os.rmdir(root)
+
+        except KeyboardInterrupt:
+            print("Interrupted by user")
 
     def use_common_file_ext(self, force:bool=False):
         ''' apply rule: use common file extensions
